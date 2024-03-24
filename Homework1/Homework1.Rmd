@@ -1,0 +1,64 @@
+---
+title: "Homework1"
+author: "xx,Roman Krass"
+date: "2024-24-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, include=FALSE}
+
+library(tidyverse)
+library(tsibble)
+
+```
+
+```{r importData, echo=FALSE, include=FALSE}
+
+unemploy <- read_csv("./UNEMPLOY.csv")
+population <- read_csv("./POP.csv")
+personalSavingRate <- read_csv("./PSAVERT.csv")
+
+```
+```{r, echo=FALSE}
+head(unemploy, 3)
+head(population, 3)
+head(personalSavingRate, 3)
+```
+When loooking into the different datasets, we can see that the data doesn't have the same time period. Because of that when combining the three datasets there would be some NAs if we just would join the data. We can solve this by using the smallest common date range of the three datasets.
+
+```{r}
+# Combine the three datasets to one tsibble with the DATE starting from 1959-01-01
+data <- unemploy %>% 
+    filter(DATE >= "1959-01-01") %>% 
+  left_join(population, by = "DATE") %>% 
+  left_join(personalSavingRate, by = "DATE") %>% 
+  rename(unemployment = UNEMPLOY, population = POP, savingRate = PSAVERT) %>% 
+  as_tsibble(index = DATE)
+
+
+```
+
+```{r timePlot}
+
+# Plot the unemployment over time
+ggplot(data, aes(x = DATE)) +
+  geom_line(aes(y = unemployment), color = "red") +
+  theme_minimal() +
+    labs(title = "Unemployment rate over time",
+        y = "Unemployment in ",
+        x = "Year")
+
+
+# Plot the personal saving rate over time
+ggplot(data, aes(x = DATE)) +
+  geom_line(aes(y = savingRate), color = "red") +
+  theme_minimal() +
+    labs(title = "Personal saving rate in % over time",
+        y = "Personal saving in %",
+        x = "Year")
+
+```
