@@ -42,23 +42,36 @@ data <- unemploy %>%
 
 ```
 
-```{r timePlot}
+```{r timePlot Unemployment, out.width="80%"}
 
 # Plot the unemployment over time
 ggplot(data, aes(x = DATE)) +
   geom_line(aes(y = unemployment), color = "red") +
-  theme_minimal() +
     labs(title = "Unemployment rate over time",
-        y = "Unemployment in ",
-        x = "Year")
+        y = "Unemployment in thousands of people",
+        x = "Year") +
+    scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+     theme_minimal()
 
+```
 
+In the plot we can see that the number of unemployed people has a lot of variation over time. But in this plot we just see the number of people that are unemployed. It would be interesting to see the unemployment rate in percent.
+What also can be seen very clearly is the COVID-19 pandemic in 2020. The number of unemployed people increased a lot in this year.
+In the plor we can also see an increase in the number of unemployed people in the years 2008 and 2009. This is the financial crisis that happened in these years.
+
+```{r timePlot SavingRate, out.width="80%"}
 # Plot the personal saving rate over time
 ggplot(data, aes(x = DATE)) +
   geom_line(aes(y = savingRate), color = "red") +
-  theme_minimal() +
     labs(title = "Personal saving rate in % over time",
         y = "Personal saving in %",
-        x = "Year")
+        x = "Year") +
+    scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+    scale_y_continuous(breaks = seq(0, , 35, by = 2)) +
+    theme_minimal()
 
 ```
+
+In the plot we can see that the personal saving rate decreased from about 1976 to 2007 from about 13% to 2%. After that the saving rate increased again to about 7% in 2020.
+Something extreme in the plot is the increase of the saving rate during the COVID-19 pandemic from 2019 to 2022. The saving rate increased from about 7% to 32% in 2020. This is a huge increase in the saving rate. After that the saving rate had a big de and increase. After the pandemic the saving rate dropped to about 3%. This makes sense because the people saved a lot of money during the pandemic and after the pandemic they started to spend the money again.
+
