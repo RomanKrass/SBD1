@@ -13,6 +13,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(tsibble)
+library(slider)
+library(fable)
+library(fabletools)
+library(forecast)
+library(stats)
 
 ```
 
@@ -39,7 +44,6 @@ data <- unemploy %>%
   left_join(personalSavingRate, by = "DATE") %>% 
   rename(unemployment = UNEMPLOY, population = POP, savingRate = PSAVERT) %>% 
   as_tsibble(index = DATE)
-
 
 ```
 
@@ -123,5 +127,30 @@ ggplot(dataPresidential, aes(x = DATE)) +
        color = "Party") +
   scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
   theme_minimal()
+
+```
+
+## Part 3
+Decompose the personal saving rate series using a centered moving average. Graph the season-adjusted
+data. Explain whether the remainder is a white noise. If you believe that a transformation could be useful
+before decomposing, then please do it. Compare your decomposition to the STL decomposition.
+```{r, echo=FALSE}
+
+dataDecomposed <- data %>%
+  mutate('5-MA' = slider::slide_dbl(savingRate, mean, .before = 2, .after = 2, .complete = TRUE)) %>%
+  mutate('11-MA' = slider::slide_dbl(savingRate, mean, .before = 5, .after = 5, .complete = TRUE))
+
+ggplot(dataDecomposed, aes(x = DATE)) +
+  geom_line(aes(y = savingRate, color = "Saving Rate")) +
+  geom_line(aes(y = `5-MA`, color = "5-MA")) +
+  geom_line(aes(y = `11-MA`, color = "11-MA")) +
+  labs(title = "Personal saving rate in % over time",
+       y = "Personal saving in %",
+       x = "Year") +
+  scale_color_manual(values = c("Saving Rate" = "black", "5-MA" = "red", "11-MA" = "blue")) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  scale_y_continuous(breaks = seq(0, 35, by = 2)) +
+  theme_minimal()
+
 
 ```
