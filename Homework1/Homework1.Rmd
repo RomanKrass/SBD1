@@ -23,6 +23,7 @@ population <- read_csv("./POP.csv")
 personalSavingRate <- read_csv("./PSAVERT.csv")
 
 ```
+## Part 1
 ```{r, echo=FALSE}
 head(unemploy, 3)
 head(population, 3)
@@ -75,3 +76,52 @@ ggplot(data, aes(x = DATE)) +
 In the plot we can see that the personal saving rate decreased from about 1976 to 2007 from about 13% to 2%. After that the saving rate increased again to about 7% in 2020.
 Something extreme in the plot is the increase of the saving rate during the COVID-19 pandemic from 2019 to 2022. The saving rate increased from about 7% to 32% in 2020. This is a huge increase in the saving rate. After that the saving rate had a big de and increase. After the pandemic the saving rate dropped to about 3%. This makes sense because the people saved a lot of money during the pandemic and after the pandemic they started to spend the money again.
 
+## Part 2
+We would like to visualize how the ruling party and the election year affect unemployment and personal
+saving rate. Recreate the timeplots with the ruling parties shown by their color. Indicate also the election
+years on your plots. Start from Carter’s presidency.
+```{r, echo=FALSE}
+
+
+# Create a sequence of dates for each presidency, assign the corresponding party, and merge with the data
+dataPresidential <- data %>%
+  left_join(presidential %>%
+              mutate(DATE = map2(start, end, seq, by = "day")) %>%
+              unnest(DATE) %>%
+              select(DATE, party), by = "DATE") %>%
+  filter(DATE >= as.Date("1977-01-20"))
+
+# Add a new grouping variable
+dataPresidential <- dataPresidential %>%
+  mutate(party_group = cumsum(party != lag(party, default = party[1])))
+
+# Plot the data
+ggplot(dataPresidential, aes(x = DATE)) +
+  geom_line(aes(y = savingRate, color = party, group = party_group), size = 1) +
+   geom_vline(data = presidential, aes(xintercept = as.numeric(start)), linetype = "dashed", color = "black") +
+  scale_color_manual(values = c("Republican" = "red", "Democratic" = "blue")) +
+  labs(title = "Personal saving rate in % over time",
+       y = "Personal saving in %",
+       x = "Year",
+       color = "Party") +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  scale_y_continuous(breaks = seq(0, 35, by = 2)) +
+  theme_minimal()
+
+```
+
+```{r, echo=FALSE}
+
+# Plot the data
+ggplot(dataPresidential, aes(x = DATE)) +
+  geom_line(aes(y = unemployment, color = party, group = party_group), size = 1) +
+  geom_vline(data = presidential, aes(xintercept = as.numeric(start)), linetype = "dashed", color = "black") +
+  scale_color_manual(values = c("Republican" = "red", "Democratic" = "blue")) +
+  labs(title = "Unemployment rate over time",
+       y = "Unemployment in thousands of people",
+       x = "Year",
+       color = "Party") +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal()
+
+```
