@@ -30,9 +30,11 @@ personalSavingRate <- read_csv("./PSAVERT.csv")
 ```
 ## Part 1
 ```{r, echo=FALSE}
-head(unemploy, 3)
-head(population, 3)
-head(personalSavingRate, 3)
+
+#head(unemploy, 3)
+#head(population, 3)
+#head(personalSavingRate, 3)
+cbind(head(unemploy, 3), head(population, 3), head(personalSavingRate, 3))
 ```
 When loooking into the different datasets, we can see that the data doesn't have the same time period. Because of that when combining the three datasets there would be some NAs if we just would join the data. We can solve this by using the smallest common date range of the three datasets.
 
@@ -64,7 +66,7 @@ In the plot we can see that the number of unemployed people has a lot of variati
 What also can be seen very clearly is the COVID-19 pandemic in 2020. The number of unemployed people increased a lot in this year.
 In the plor we can also see an increase in the number of unemployed people in the years 2008 and 2009. This is the financial crisis that happened in these years.
 
-```{r timePlot SavingRate, out.width="80%"}
+```{r timePlot SavingRate, out.width="80%", warning=FALSE}
 # Plot the personal saving rate over time
 ggplot(data, aes(x = DATE)) +
   geom_line(aes(y = savingRate), color = "red") +
@@ -84,7 +86,8 @@ Something extreme in the plot is the increase of the saving rate during the COVI
 We would like to visualize how the ruling party and the election year affect unemployment and personal
 saving rate. Recreate the timeplots with the ruling parties shown by their color. Indicate also the election
 years on your plots. Start from Carter’s presidency.
-```{r, echo=FALSE}
+
+```{r, echo=FALSE, warning=FALSE}
 
 
 # Create a sequence of dates for each presidency, assign the corresponding party, and merge with the data
@@ -114,7 +117,8 @@ ggplot(dataPresidential, aes(x = DATE)) +
 
 ```
 
-```{r, echo=FALSE}
+
+```{r, echo=FALSE, warning=FALSE}
 
 # Plot the data
 ggplot(dataPresidential, aes(x = DATE)) +
@@ -134,7 +138,7 @@ ggplot(dataPresidential, aes(x = DATE)) +
 Decompose the personal saving rate series using a centered moving average. Graph the season-adjusted
 data. Explain whether the remainder is a white noise. If you believe that a transformation could be useful
 before decomposing, then please do it. Compare your decomposition to the STL decomposition.
-```{r, echo=FALSE}
+```{r, echo=FALSE, warning=FALSE}
 
 dataDecomposed <- data %>%
   mutate('5-MA' = slider::slide_dbl(savingRate, mean, .before = 2, .after = 2, .complete = TRUE)) %>%
@@ -152,5 +156,43 @@ ggplot(dataDecomposed, aes(x = DATE)) +
   scale_y_continuous(breaks = seq(0, 35, by = 2)) +
   theme_minimal()
 
+
+```
+
+
+```{r, echo=FALSE, warning=FALSE}
+#Graph the season-adjusted data.
+
+data |>
+  mutate(DATE = yearmonth(DATE)) |>
+  as_tsibble(index = DATE, key = c(unemployment, population, savingRate), regular = TRUE) -> data_tsibble
+
+
+
+# check if data$savingRate has na values
+sum(is.na(data$savingRate))
+
+# remove that one NA value
+data <- data %>% drop_na()
+
+# Convert savingRate to a ts object with a specified frequency
+savingRate_ts <- ts(data$savingRate, frequency = 12)
+
+# Decompose the savingRate time series with stl
+stl_result <- stl(savingRate_ts, t.window = 12, s.window = "periodic", robust = TRUE)
+autoplot(stl_result)
+
+# Create a data frame with the original and adjusted savingRate
+adjusted_data <- data %>%
+  mutate(AdjustedSavingRate = savingRate - stl_result$time.series[, "seasonal"])
+
+# Plot the original and adjusted savingRate
+ggplot(adjusted_data, aes(x = DATE)) +
+  geom_line(aes(y = savingRate, color = "Original"), ) +
+  geom_line(aes(y = AdjustedSavingRate, color = "Seasonal adjusted"), ) +
+  labs(title = "Saving Rate seasonal adjusted over time",
+       y = "Saving Rate",
+       x = "Year") +
+  scale_color_manual(values = c("Original" = "red", "Seasonal adjusted" = "blue"))
 
 ```
