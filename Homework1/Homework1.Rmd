@@ -38,7 +38,7 @@ cbind(head(unemploy, 3), head(population, 3), head(personalSavingRate, 3))
 ```
 When loooking into the different datasets, we can see that the data doesn't have the same time period. Because of that when combining the three datasets there would be some NAs if we just would join the data. We can solve this by using the smallest common date range of the three datasets.
 
-```{r}
+```{r, echo=FALSE}
 # Combine the three datasets to one tsibble with the DATE starting from 1959-01-01
 data <- unemploy %>% 
     filter(DATE >= "1959-01-01") %>% 
@@ -49,7 +49,7 @@ data <- unemploy %>%
 
 ```
 
-```{r timePlot Unemployment, out.width="80%"}
+```{r timePlot Unemployment, out.width="80%", echo=FALSE}
 
 # Plot the unemployment over time
 ggplot(data, aes(x = DATE)) +
@@ -66,7 +66,7 @@ In the plot we can see that the number of unemployed people has a lot of variati
 What also can be seen very clearly is the COVID-19 pandemic in 2020. The number of unemployed people increased a lot in this year.
 In the plor we can also see an increase in the number of unemployed people in the years 2008 and 2009. This is the financial crisis that happened in these years.
 
-```{r timePlot SavingRate, out.width="80%", warning=FALSE}
+```{r timePlot SavingRate, out.width="80%", warning=FALSE, echo=FALSE}
 # Plot the personal saving rate over time
 ggplot(data, aes(x = DATE)) +
   geom_line(aes(y = savingRate), color = "red") +
