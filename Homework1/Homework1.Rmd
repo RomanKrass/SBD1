@@ -196,3 +196,69 @@ ggplot(adjusted_data, aes(x = DATE)) +
   scale_color_manual(values = c("Original" = "red", "Seasonal adjusted" = "blue"))
 
 ```
+
+
+# Task 4
+
+Description: We would like to forecast unemployment in Switzerland. Collect the unemployment data for the last
+years (at least 10 years) broken down to Cantons. Your data could also contains additional information like
+size (population, area) and any other information you think could be helpful in predicting unemployment.
+Create a tsibble object from your data. Use write_rds() to save your data. Give a single plot that gives an
+overview of the seasonal and trend strength of unemployment by cantons.
+
+## Data Sources:
+
+* Unemployment per canton: https://www.bfs.admin.ch/bfs/de/home/statistiken/arbeit-erwerb/erwerbslosigkeit-unterbeschaeftigung/registrierte-arbeitslose-seco.html
+* Population statistics: https://www.bfs.admin.ch/bfs/de/home/statistiken/bevoelkerung/stand-entwicklung.assetdetail.26565154.html
+
+## Data Import:
+```{r, echo=FALSE, warning=FALSE}
+#TODO: remove Year 2023 for one of the datasets
+# TODO: remove imports here e.g. move up to top of document
+library(readxl)
+library(tidyverse)
+library(tsibble)
+library(readr)
+library(forecast)
+library(ggplot2)
+library(fabletools)
+library(feasts)
+
+
+unemployment <- read_xlsx("./datasets/unemployment_numbers_switzerland.xlsx")
+
+population <- read_xlsx("./datasets/population_numbers_switzerland.xlsx")
+
+# Data Processing to make it possible to create a tsibble
+unemployment <- unemployment %>%
+  pivot_longer(cols = -Kanton, names_to = "Year", values_to = "Unemployment") %>%
+  mutate(Year = as.numeric(Year))
+
+population <- population %>%
+  pivot_longer(cols = -Kanton, names_to = "Year", values_to = "Population") %>% mutate(Year = as.numeric(Year))
+
+# Convert the data to a tsibble
+combined_data <- full_join(unemployment, population, by = c("Year", "Kanton"))
+
+combined_tsibble <- combined_data %>%
+  as_tsibble(index = Year, key = Kanton)
+
+# Write the data to a rds file
+write_rds(combined_tsibble, "./task4.rds")
+
+
+# TODO Plot the seasonal and trend strength of unemployment by cantons
+# Convert the tsibble to a ts object with a specified frequency
+combined_ts <- combined_tsibble %>%
+  group_by(Kanton) %>%
+  do(as.ts(., value = "Unemployment"))
+
+decomposed <- combined_tsibble %>%
+  model(STL(Unemployment ~ season(window = "periodic") + trend(window = 12))) %>%
+  components()
+
+print(autoplot(decomposed, features = c("seasonal", "trend")))
+
+p <- autoplot(decomposed, features = c("seasonal", "trend"))
+ggsave("plot.png", p)
+```
