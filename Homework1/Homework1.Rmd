@@ -1,7 +1,7 @@
 ---
 title: "Homework1"
-author: "xx,Roman Krass"
-date: "2024-24-03"
+author: "Roman Krass, Keijo Nierula ..."
+date: "2024-04-11"
 output: pdf_document
 ---
 
@@ -18,7 +18,8 @@ library(fable)
 library(fabletools)
 library(forecast)
 library(stats)
-
+library(readxl)
+library(feasts)
 ```
 
 ```{r importData, echo=FALSE, include=FALSE}
@@ -198,67 +199,48 @@ ggplot(adjusted_data, aes(x = DATE)) +
 ```
 
 
-# Task 4
+# Part 4
 
-Description: We would like to forecast unemployment in Switzerland. Collect the unemployment data for the last
-years (at least 10 years) broken down to Cantons. Your data could also contains additional information like
-size (population, area) and any other information you think could be helpful in predicting unemployment.
-Create a tsibble object from your data. Use write_rds() to save your data. Give a single plot that gives an
-overview of the seasonal and trend strength of unemployment by cantons.
+Data Sources we used:
 
-## Data Sources:
-
-* Unemployment per canton: https://www.bfs.admin.ch/bfs/de/home/statistiken/arbeit-erwerb/erwerbslosigkeit-unterbeschaeftigung/registrierte-arbeitslose-seco.html
+* Unemployment per canton: https://www.bfs.admin.ch/bfs/de/home/statistiken/arbeit-erwerb/erwerbslosigkeit-unterbeschaeftigung/registrierte-arbeitslose-seco.assetdetail.30245369.html
 * Population statistics: https://www.bfs.admin.ch/bfs/de/home/statistiken/bevoelkerung/stand-entwicklung.assetdetail.26565154.html
 
-## Data Import:
+Both sheets have been manipulated manually to make the parsing in R easier, e.g. we removed unnecessary columns and rows and for the population dataset we merged all the values from the years into one sheet.
+Population data for 2023 was not yet available, which is why the combined tsibble has some NA values.
 ```{r, echo=FALSE, warning=FALSE}
-#TODO: remove Year 2023 for one of the datasets
-# TODO: remove imports here e.g. move up to top of document
-library(readxl)
-library(tidyverse)
-library(tsibble)
-library(readr)
-library(forecast)
-library(ggplot2)
-library(fabletools)
-library(feasts)
-
-
-unemployment <- read_xlsx("./datasets/unemployment_numbers_switzerland.xlsx")
-
-population <- read_xlsx("./datasets/population_numbers_switzerland.xlsx")
+unemployment <- read_xlsx("unemployment_rate_switzerland.xlsx")
+population <- read_xlsx("population_numbers_switzerland.xlsx")
 
 # Data Processing to make it possible to create a tsibble
 unemployment <- unemployment %>%
   pivot_longer(cols = -Kanton, names_to = "Year", values_to = "Unemployment") %>%
   mutate(Year = as.numeric(Year))
-
 population <- population %>%
   pivot_longer(cols = -Kanton, names_to = "Year", values_to = "Population") %>% mutate(Year = as.numeric(Year))
 
 # Convert the data to a tsibble
 combined_data <- full_join(unemployment, population, by = c("Year", "Kanton"))
-
 combined_tsibble <- combined_data %>%
   as_tsibble(index = Year, key = Kanton)
 
 # Write the data to a rds file
 write_rds(combined_tsibble, "./task4.rds")
 
-
-# TODO Plot the seasonal and trend strength of unemployment by cantons
-# Convert the tsibble to a ts object with a specified frequency
-combined_ts <- combined_tsibble %>%
-  group_by(Kanton) %>%
-  do(as.ts(., value = "Unemployment"))
-
+# Decompose the unemployment rate by canton for the plot
 decomposed <- combined_tsibble %>%
   model(STL(Unemployment ~ season(window = "periodic") + trend(window = 12))) %>%
   components()
 
-print(autoplot(decomposed, features = c("seasonal", "trend")))
-
-p <- autoplot(decomposed, features = c("seasonal", "trend"))
-ggsave("plot.png", p)
+# Plot the seasonal and trend components of the unemployment rate by canton
+ggplot(decomposed, aes(x = Year)) +
+  geom_line(aes(y = season_adjust), color = "blue") +
+  geom_line(aes(y = trend), color = "red") +
+  facet_wrap(~ Kanton, scales = "free_y") +
+  labs(x = "Year", y = "Unemployment Rate", color = "Component", title = "Unemployment Rate in Swiss Cantons") +
+  theme_minimal() +
+  theme(strip.text = element_text(size = 6), axis.text.x = element_text(size = 6), axis.text.y = element_text(size = 6))
 ```
+
+The plot shows the seasonal and trend components of the unemployment rate in Switzerland by canton. The blue line represents the seasonal component, while the red line represents the trend component. With the seasonal line, peaks in unemployment, like the Covid-19 Pandemic can be seen clearly.
+Also from the Task Description it was not clear for us whether the additional data (population data) also has to be displayed in the plot. We decided not do it, as it would have made the plot unreadable.
