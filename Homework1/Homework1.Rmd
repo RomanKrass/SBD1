@@ -10,7 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r, echo=FALSE, include=FALSE}
-
 library(tidyverse)
 library(tsibble)
 library(slider)
@@ -23,44 +22,38 @@ library(feasts)
 ```
 
 ```{r importData, echo=FALSE, include=FALSE}
-
 unemploy <- read_csv("./UNEMPLOY.csv")
 population <- read_csv("./POP.csv")
 personalSavingRate <- read_csv("./PSAVERT.csv")
-
 ```
 ## Part 1
 ```{r, echo=FALSE}
-
-#head(unemploy, 3)
-#head(population, 3)
-#head(personalSavingRate, 3)
+# show first 3 lines of the datasets
 cbind(head(unemploy, 3), head(population, 3), head(personalSavingRate, 3))
 ```
 When loooking into the different datasets, we can see that the data doesn't have the same time period. Because of that when combining the three datasets there would be some NAs if we just would join the data. We can solve this by using the smallest common date range of the three datasets.
 
 ```{r, echo=FALSE}
 # Combine the three datasets to one tsibble with the DATE starting from 1959-01-01
-data <- unemploy %>% 
-    filter(DATE >= "1959-01-01") %>% 
-  left_join(population, by = "DATE") %>% 
-  left_join(personalSavingRate, by = "DATE") %>% 
-  rename(unemployment = UNEMPLOY, population = POP, savingRate = PSAVERT) %>% 
+data <- unemploy %>%
+  filter(DATE >= "1959-01-01") %>%
+  left_join(population, by = "DATE") %>%
+  left_join(personalSavingRate, by = "DATE") %>%
+  rename(unemployment = UNEMPLOY, population = POP, savingRate = PSAVERT) %>%
   as_tsibble(index = DATE)
-
 ```
 
 ```{r timePlot Unemployment, out.width="80%", echo=FALSE}
-
 # Plot the unemployment over time
 ggplot(data, aes(x = DATE)) +
   geom_line(aes(y = unemployment), color = "red") +
-    labs(title = "Unemployment rate over time",
-        y = "Unemployment in thousands of people",
-        x = "Year") +
-    scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
-     theme_minimal()
-
+  labs(
+    title = "Unemployment rate over time",
+    y = "Unemployment in thousands of people",
+    x = "Year"
+  ) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_minimal()
 ```
 
 In the plot we can see that the number of unemployed people has a lot of variation over time. But in this plot we just see the number of people that are unemployed. It would be interesting to see the unemployment rate in percent.
@@ -71,13 +64,14 @@ In the plor we can also see an increase in the number of unemployed people in th
 # Plot the personal saving rate over time
 ggplot(data, aes(x = DATE)) +
   geom_line(aes(y = savingRate), color = "red") +
-    labs(title = "Personal saving rate in % over time",
-        y = "Personal saving in %",
-        x = "Year") +
-    scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
-    scale_y_continuous(breaks = seq(0, , 35, by = 2)) +
-    theme_minimal()
-
+  labs(
+    title = "Personal saving rate in % over time",
+    y = "Personal saving in %",
+    x = "Year"
+  ) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  scale_y_continuous(breaks = seq(0, , 35, by = 2)) +
+  theme_minimal()
 ```
 
 In the plot we can see that the personal saving rate decreased from about 1976 to 2007 from about 13% to 2%. After that the saving rate increased again to about 7% in 2020.
@@ -89,14 +83,12 @@ saving rate. Recreate the timeplots with the ruling parties shown by their color
 years on your plots. Start from Carter’s presidency.
 
 ```{r, echo=FALSE, warning=FALSE}
-
-
 # Create a sequence of dates for each presidency, assign the corresponding party, and merge with the data
 dataPresidential <- data %>%
   left_join(presidential %>%
-              mutate(DATE = map2(start, end, seq, by = "day")) %>%
-              unnest(DATE) %>%
-              select(DATE, party), by = "DATE") %>%
+    mutate(DATE = map2(start, end, seq, by = "day")) %>%
+    unnest(DATE) %>%
+    select(DATE, party), by = "DATE") %>%
   filter(DATE >= as.Date("1977-01-20"))
 
 # Add a new grouping variable
@@ -106,98 +98,113 @@ dataPresidential <- dataPresidential %>%
 # Plot the data
 ggplot(dataPresidential, aes(x = DATE)) +
   geom_line(aes(y = savingRate, color = party, group = party_group), size = 1) +
-   geom_vline(data = presidential, aes(xintercept = as.numeric(start)), linetype = "dashed", color = "black") +
+  geom_vline(data = presidential, aes(xintercept = as.numeric(start)), linetype = "dashed", color = "black") +
   scale_color_manual(values = c("Republican" = "red", "Democratic" = "blue")) +
-  labs(title = "Personal saving rate in % over time",
-       y = "Personal saving in %",
-       x = "Year",
-       color = "Party") +
+  labs(
+    title = "Personal saving rate in % over time",
+    y = "Personal saving in %",
+    x = "Year",
+    color = "Party"
+  ) +
   scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
   scale_y_continuous(breaks = seq(0, 35, by = 2)) +
   theme_minimal()
-
 ```
 
+In the plot we can see that the personal saving rate decreased from about 1976 to 2007 from about 12% to 3%. After that the saving rate increased again to about 7% in 2020. We can also see that there is no obvious difference between the two parties. The saving rate increased and decreased for both parties in the same way. The big increase in the personal saving rate during the COVID-19 pandemic is also visible in this plot but has nothing to do with the party that is in power. Because the dataset presidential only contains data until 2021 there is a NA part in the graph. The vertical lines in the plot are the elections. Because the dataset contains only the president some elections are missing in the plot when the president was reelected.
 
 ```{r, echo=FALSE, warning=FALSE}
-
 # Plot the data
 ggplot(dataPresidential, aes(x = DATE)) +
   geom_line(aes(y = unemployment, color = party, group = party_group), size = 1) +
   geom_vline(data = presidential, aes(xintercept = as.numeric(start)), linetype = "dashed", color = "black") +
   scale_color_manual(values = c("Republican" = "red", "Democratic" = "blue")) +
-  labs(title = "Unemployment rate over time",
-       y = "Unemployment in thousands of people",
-       x = "Year",
-       color = "Party") +
+  labs(
+    title = "Unemployment rate over time",
+    y = "Unemployment in thousands of people",
+    x = "Year",
+    color = "Party"
+  ) +
   scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
   theme_minimal()
-
 ```
 
 ## Part 3
-Decompose the personal saving rate series using a centered moving average. Graph the season-adjusted
-data. Explain whether the remainder is a white noise. If you believe that a transformation could be useful
-before decomposing, then please do it. Compare your decomposition to the STL decomposition.
-```{r, echo=FALSE, warning=FALSE}
+Because the dataset we needed to use only contains seasonally adjusted data we can't decompose the seasonally part again because it is already removed. We can still decompose the data into trend and remainder. We can also calculate the moving average of the data.
 
+```{r, echo=FALSE, warning=FALSE}
 dataDecomposed <- data %>%
-  mutate('5-MA' = slider::slide_dbl(savingRate, mean, .before = 2, .after = 2, .complete = TRUE)) %>%
-  mutate('11-MA' = slider::slide_dbl(savingRate, mean, .before = 5, .after = 5, .complete = TRUE))
+  mutate("5-MA" = slider::slide_dbl(savingRate, mean, .before = 2, .after = 2, .complete = TRUE)) %>%
+  mutate("11-MA" = slider::slide_dbl(savingRate, mean, .before = 5, .after = 5, .complete = TRUE))
 
 ggplot(dataDecomposed, aes(x = DATE)) +
   geom_line(aes(y = savingRate, color = "Saving Rate")) +
   geom_line(aes(y = `5-MA`, color = "5-MA")) +
   geom_line(aes(y = `11-MA`, color = "11-MA")) +
-  labs(title = "Personal saving rate in % over time",
-       y = "Personal saving in %",
-       x = "Year") +
-  scale_color_manual(values = c("Saving Rate" = "black", "5-MA" = "red", "11-MA" = "blue")) +
+  labs(
+    title = "Personal saving rate in % over time",
+    y = "Personal saving in %",
+    x = "Year"
+  ) +
+  scale_color_manual(
+    name = "Legend",
+    values = c("Saving Rate" = "black", "5-MA" = "red", "11-MA" = "blue")
+  ) +
   scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
   scale_y_continuous(breaks = seq(0, 35, by = 2)) +
   theme_minimal()
-
-
 ```
 
+When we look at the moving average we can see that the moving average is a lot smoother than the original data. The moving average is a lot smoother because it is the average of the data in a specific time frame. The 5-MA is the average of the data in a time frame of 5 months. The 11-MA is the average of the data in a time frame of 11 months. The 11-MA is smoother than the 5-MA because it is the average of a longer time frame.
+We can also see that the random variation in the data is removed in the graph. 
 
-```{r, echo=FALSE, warning=FALSE}
-#Graph the season-adjusted data.
-
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='hide'}	
+# Convert the data to a tsibble
 data |>
   mutate(DATE = yearmonth(DATE)) |>
   as_tsibble(index = DATE, key = c(unemployment, population, savingRate), regular = TRUE) -> data_tsibble
-
-
 
 # check if data$savingRate has na values
 sum(is.na(data$savingRate))
 
 # remove that one NA value
 data <- data %>% drop_na()
+```
 
+```{r, echo=FALSE, warning=FALSE}
 # Convert savingRate to a ts object with a specified frequency
 savingRate_ts <- ts(data$savingRate, frequency = 12)
 
 # Decompose the savingRate time series with stl
 stl_result <- stl(savingRate_ts, t.window = 12, s.window = "periodic", robust = TRUE)
 autoplot(stl_result)
+```
 
+When we look at the STL decomposition we can see, that the sesonal part is very low because it was already removed in the data. We can also see that there is a negative trend in most of the time series. This means that the saving rate decreased over time. The remainder is the part that is left after removing the seasonal and trend part. This part is the part that is not explained by the trend and the seasonal part. 
+We can see that the remainder is white noise because it doens't have any trend or pattern to it . But when we look at the results from our other plots we can explain the last extreme variation in the remainder. This is the COVID-19 pandemic.
+
+
+```{r, echo=FALSE, warning=FALSE}
 # Create a data frame with the original and adjusted savingRate
 adjusted_data <- data %>%
   mutate(AdjustedSavingRate = savingRate - stl_result$time.series[, "seasonal"])
 
 # Plot the original and adjusted savingRate
 ggplot(adjusted_data, aes(x = DATE)) +
-  geom_line(aes(y = savingRate, color = "Original"), ) +
-  geom_line(aes(y = AdjustedSavingRate, color = "Seasonal adjusted"), ) +
-  labs(title = "Saving Rate seasonal adjusted over time",
-       y = "Saving Rate",
-       x = "Year") +
-  scale_color_manual(values = c("Original" = "red", "Seasonal adjusted" = "blue"))
-
+  geom_line(aes(y = savingRate, color = "Original")) +
+  geom_line(aes(y = AdjustedSavingRate, color = "Seasonal adjusted")) +
+  labs(
+    title = "Saving Rate seasonal adjusted over time",
+    y = "Saving Rate",
+    x = "Year"
+  ) +
+  scale_color_manual(
+    name = "Legend",
+    values = c("Original" = "red", "Seasonal adjusted" = "blue")
+  )
 ```
 
+As already mentioned the seasonal part is already removed in the data. Because of that we can see nearly no difference between the original and the adjusted saving rate.
 
 # Part 4
 
@@ -217,7 +224,8 @@ unemployment <- unemployment %>%
   pivot_longer(cols = -Kanton, names_to = "Year", values_to = "Unemployment") %>%
   mutate(Year = as.numeric(Year))
 population <- population %>%
-  pivot_longer(cols = -Kanton, names_to = "Year", values_to = "Population") %>% mutate(Year = as.numeric(Year))
+  pivot_longer(cols = -Kanton, names_to = "Year", values_to = "Population") %>%
+  mutate(Year = as.numeric(Year))
 
 # Convert the data to a tsibble
 combined_data <- full_join(unemployment, population, by = c("Year", "Kanton"))
@@ -236,7 +244,7 @@ decomposed <- combined_tsibble %>%
 ggplot(decomposed, aes(x = Year)) +
   geom_line(aes(y = season_adjust), color = "blue") +
   geom_line(aes(y = trend), color = "red") +
-  facet_wrap(~ Kanton, scales = "free_y") +
+  facet_wrap(~Kanton, scales = "free_y") +
   labs(x = "Year", y = "Unemployment Rate", color = "Component", title = "Unemployment Rate in Swiss Cantons") +
   theme_minimal() +
   theme(strip.text = element_text(size = 6), axis.text.x = element_text(size = 6), axis.text.y = element_text(size = 6))
