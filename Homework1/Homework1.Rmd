@@ -252,3 +252,13 @@ ggplot(decomposed, aes(x = Year)) +
 
 The plot shows the seasonal and trend components of the unemployment rate in Switzerland by canton. The blue line represents the seasonal component, while the red line represents the trend component. With the seasonal line, peaks in unemployment, like the Covid-19 Pandemic can be seen clearly.
 Also from the Task Description it was not clear for us whether the additional data (population data) also has to be displayed in the plot. We decided not do it, as it would have made the plot unreadable.
+
+# Part 5
+## Purpose of the unemployment forecast in Switzerland
+The purpose of the unemployment forecast in Switzerland is multifaceted. It serves to inform political decision-makers, economists and companies about the future development of the labor market. For political decision-makers, forecasts help to mitigate fluctuations in unemployment and ensure stable economic growth. Economists use forecasts to understand underlying trends in the labor market, assess the impact of economic factors on unemployment rates and develop models for economic analysis. Businesses rely on unemployment forecasts to anticipate labor market conditions. 
+
+## Availability of information for the unemployment forecast in Switzerland
+The accuracy of unemployment forecasts in Switzerland depends on the availability of relevant data and timely information. Key factors influencing unemployment, such as GDP growth, inflation rate, labor force participation and demographic trends, need to be closely monitored. Access to up-to-date statistical data from government agencies such as the Federal Statistical Office is essential for the creation of reliable forecasting models. This is why we also use these data files from the federal government. Timely access to labor market indicators, surveys and economic reports ensures that forecasters have the necessary information to make informed predictions about future unemployment rates in Switzerland.
+
+## Assessing the value of unemployment forecasts in Switzerland
+This prediction is arguably more valuable to businesses and the federal government than to ordinary citizens. Accurate forecasts help policy makers to develop effective labor market policies that can contribute to social stability, economic growth and improved prosperity. For businesses, unemployment forecasts serve as a basis for workforce planning, hiring strategies and investment decisions, which can optimize resource allocation and minimize labor market risks. In addition, financial institutions, investors and international organizations rely on unemployment forecasts to assess Switzerland's economic performance and evaluate the country's attractiveness for investment.
