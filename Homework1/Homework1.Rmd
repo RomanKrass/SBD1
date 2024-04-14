@@ -1,7 +1,7 @@
 ---
 title: "Homework1"
-author: "Roman Krass, Keijo Nierula ..."
-date: "2024-04-11"
+author: "Erdan Beka, Cyril Scheuermann, Roman Krass, Keijo Nierula"
+date: "2024-04-14"
 output: pdf_document
 ---
 
@@ -31,7 +31,7 @@ personalSavingRate <- read_csv("./PSAVERT.csv")
 # show first 3 lines of the datasets
 cbind(head(unemploy, 3), head(population, 3), head(personalSavingRate, 3))
 ```
-When loooking into the different datasets, we can see that the data doesn't have the same time period. Because of that when combining the three datasets there would be some NAs if we just would join the data. We can solve this by using the smallest common date range of the three datasets.
+When looking into the different datasets, we can see that the data doesn't have the same time period. Because of that when combining the three datasets there would be some NAs if we just would join the data. We can solve this by using the smallest common date range of the three datasets.
 
 ```{r, echo=FALSE}
 # Combine the three datasets to one tsibble with the DATE starting from 1959-01-01
@@ -58,7 +58,7 @@ ggplot(data, aes(x = DATE)) +
 
 In the plot we can see that the number of unemployed people has a lot of variation over time. But in this plot we just see the number of people that are unemployed. It would be interesting to see the unemployment rate in percent.
 What also can be seen very clearly is the COVID-19 pandemic in 2020. The number of unemployed people increased a lot in this year.
-In the plor we can also see an increase in the number of unemployed people in the years 2008 and 2009. This is the financial crisis that happened in these years.
+In the plot we can also see an increase in the number of unemployed people in the years 2008 and 2009. This is the financial crisis that happened in these years.
 
 ```{r timePlot SavingRate, out.width="80%", warning=FALSE, echo=FALSE}
 # Plot the personal saving rate over time
@@ -111,7 +111,7 @@ ggplot(dataPresidential, aes(x = DATE)) +
   theme_minimal()
 ```
 
-In the plot we can see that the personal saving rate decreased from about 1976 to 2007 from about 12% to 3%. After that the saving rate increased again to about 7% in 2020. We can also see that there is no obvious difference between the two parties. The saving rate increased and decreased for both parties in the same way. The big increase in the personal saving rate during the COVID-19 pandemic is also visible in this plot but has nothing to do with the party that is in power. Because the dataset presidential only contains data until 2021 there is a NA part in the graph. The vertical lines in the plot are the elections. Because the dataset contains only the president some elections are missing in the plot when the president was reelected.
+In the plot we can see that the personal saving rate decreased from about 1976 to 2007 from about 12% to 3%. After that the saving rate increased again to about 7% in 2020. We can also see that there is no obvious difference between the two parties. The saving rate increased and decreased for both parties in the same way. The big increase in the personal saving rate during the COVID-19 pandemic is also visible in this plot but has nothing to do with the party that is in power. Because the dataset presidential only contains data until 2021 there is a NA part in the graph. The vertical lines in the plot are the elections. Because the dataset contains only the president some elections are missing in the plot when the president was re-elected.
 
 ```{r, echo=FALSE, warning=FALSE}
 # Plot the data
@@ -180,8 +180,8 @@ stl_result <- stl(savingRate_ts, t.window = 12, s.window = "periodic", robust = 
 autoplot(stl_result)
 ```
 
-When we look at the STL decomposition we can see, that the sesonal part is very low because it was already removed in the data. We can also see that there is a negative trend in most of the time series. This means that the saving rate decreased over time. The remainder is the part that is left after removing the seasonal and trend part. This part is the part that is not explained by the trend and the seasonal part. 
-We can see that the remainder is white noise because it doens't have any trend or pattern to it . But when we look at the results from our other plots we can explain the last extreme variation in the remainder. This is the COVID-19 pandemic.
+When we look at the STL decomposition we can see that the seasonal part is very low because it was already removed in the data. We can also see that there is a negative trend in most of the time series. This means that the saving rate decreased over time. The remainder is the part that is left after removing the seasonal and trend part. This part is the part that is not explained by the trend and the seasonal part. 
+We can see that the remainder is white noise because it doesn’t  have any trend or pattern to it. But when we look at the results from our other plots we can explain the last extreme variation in the remainder. This is the COVID-19 pandemic.
 
 
 ```{r, echo=FALSE, warning=FALSE}
@@ -204,7 +204,7 @@ ggplot(adjusted_data, aes(x = DATE)) +
   )
 ```
 
-As already mentioned the seasonal part is already removed in the data. Because of that we can see nearly no difference between the original and the adjusted saving rate.
+As already mentioned, the seasonal part is already removed in the data. Because of that we can see nearly no difference between the original and the adjusted saving rate.
 
 # Part 4
 
