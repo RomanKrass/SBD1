@@ -1,6 +1,6 @@
 ---
 title: "Homework1"
-author: "Erdan Beka, Cyril Scheuermann, Roman Krass, Keijo Nierula"
+author: "Nico Wehrli, Erdan Beka, Cyril Scheuermann, Roman Krass, Keijo Nierula"
 date: "2024-04-14"
 output: pdf_document
 ---
