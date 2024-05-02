@@ -1,0 +1,98 @@
+---
+title: "Judgment-Based Forecasting"
+subtitle: "Exploring Judgemental Methods and Expert Opinions"
+author: "Erdan Beka, Cyril Scheuermann, Roman Krass, Keijo Nierula"
+date: "07.05.2024"
+output:
+  ioslides_presentation:
+    widescreen: true
+    transition: slower
+---
+
+<!-- See Doc for ioslides here: https://bookdown.org/yihui/rmarkdown/ioslides-presentation.html#ioslides-presentation -->
+
+## Introduction
+
+- Overview of Judgment-Based Forecasting
+- Why are Judgmental Methods important?
+
+
+## Judgmental Methods
+
+- What are Judgmental Forecasting Methods?
+- Six Types:
+  - Single Expert
+  - Expert and Group Opinion
+  - Jury of Expert Opinion
+  - Sales Force Projections
+  - Customer Surveys
+  - Use of Analogies
+
+
+## Single Expert (or Unaidered Judgment)
+
+- Relies on the judgment of a single expert to provide a forecast.
+- Commonly used when a single individual is perceived to have superior knowledge or insight.
+- Advantage: Can yield excellent forecasts if the expert is well-qualified and unbiased.
+- Limitations:
+  - Risk of systematic biases if the expert has personal prejudices or wishful thinking
+  - Difficulty in identifying truly qualified experts.
+- Example: A financial analyst providing a forecast for the stock market based on their analysis of economic indicators, market trends, and company performance.
+
+
+## Expert and Group Opinion
+
+- Involves harnessing expertise, either individual or collective, to provide forecasts
+- Utilized in various contexts, including betting markets, executive committees, and focus groups.
+- Advantage: Combines multiple viewpoints and expertise, potentially improving forecast accuracy.
+- Limitations:
+  - Risk of groupthink, where dissenting viewpoints are suppressed, leading to biased forecasts.
+  - Political considerations may influence the consensus, compromising the objectivity of the forecast.
+- Examples: A team of executives from sales, marketing, and finance departments convening to discuss and agree upon sales forecasts for the upcoming quarter as part of the Sales and Operations Planning (S&OP) process.
+
+
+## Jury of Expert Opinion
+
+- Involves bringing together a group of experts with different responsibilities to provide a forecast.
+- Often part of the Sales and Operations Planning (S&OP) process in companies.
+- Advantage: Incorporates a range of managerial viewpoints into the forecasting process
+- Limitations:
+  - Forecasts and targets may become confused, leading to potential inaccuracies.
+  - Political considerations can influence the debate, leading to biases in the forecast.
+- Example: A consumer goods company assembling a cross-functional team of experts from marketing, production, and finance departments to collaboratively forecast sales for a new product launch.
+
+## Sales Force Projections
+
+- Utilizes information from a company's sales force to forecast future sales.
+- Particularly useful when quantitative data are limited, such as for new products or markets.
+- Advantage: Capitalizes on sales representatives' firsthand knowledge of customer interactions and market conditions.
+- Limitations:
+  - Risk of biased forecasts if management uses projections to set sales targets.
+  - Difficulty in aggregating individual forecasts without accounting for potential reporting biases.
+- Example: A multinational corporation relying on input from its regional sales teams to forecast demand for its products in different geographic markets.
+
+## Customer Surveys
+
+- Collects data directly from customers regarding their purchasing intentions.
+- Used to gauge demand for products or services and inform sales forecasts.
+- Advantage: Provides direct access to customer insights and preferences.
+- Limitation: Risk of response biases or discrepancies between stated intentions and actual behavior.
+- Example: A car manufacturer conducting a survey to assess consumer preferences and intentions to purchase electric vehicles over the next year.
+
+## Use of Analogies
+
+- Involves making judgments based on similarities between the current situation and past experiences or similar situations.
+- Used to forecast outcomes by identifying analogous situations and leveraging historical data or past events.
+- Advantage: Provides a structured approach to forecasting, especially when historical data or quantitative methods are limited.
+- Limitations:
+  - Relies on subjective judgment in identifying analogies, which may introduce biases or overlook relevant differences.
+  - Risk of over-reliance on a single analogy or characteristic, leading to inaccurate forecasts.
+- Example: A retail chain using historical sales data from similar promotions or product launches to forecast the impact of an upcoming marketing campaign.
+
+## Recommendations
+
+TODO
+
+## Conclusion
+
+TODO
