@@ -91,8 +91,18 @@ output:
 
 ## Recommendations
 
-TODO
+- Single Expert: Ensure the expert has a deep understanding of the subject matter. However, be aware of potential biases and consider using this method in conjunction with others to balance out any individual bias.
+- Expert and Group Opinion: Encourage open and respectful dialogue among the group. Diverse perspectives can lead to a more comprehensive forecast. Use structured techniques like the Delphi method to avoid groupthink.
+- Jury of Expert Opinion: Similar to the above, but ensure the jury is made up of experts in the relevant field. The diversity of the jury can help balance out individual biases and lead to a more accurate forecast.
+
+
+## Recommendations
+- Sales Force Projections: Regularly train the sales force in forecasting and provide them with clear instructions and guidance. Their close contact with the market can provide valuable insights, but these projections may be influenced by their personal sales targets.
+- Customer Surveys: Ensure the survey is designed well to avoid leading questions and bias. It’s also important to have a representative sample of customers for the survey.
+- Use of Analogies: Be cautious when drawing analogies, as situations may appear similar but have different underlying factors. This method should be used as a supplement to other methods, rather than a standalone forecasting tool.
 
 ## Conclusion
 
-TODO
+- Judgmental forecasting methods play a crucial role in decision-making and planning.
+- Each method has its strengths and limitations, requiring careful consideration and evaluation when selecting an approach.
+- Subject to various biases and personal judgment
