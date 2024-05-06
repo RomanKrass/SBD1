@@ -74,7 +74,7 @@ output:
 ## Customer Surveys
 
 - Collects data directly from customers regarding their purchasing intentions.
-- Used to gauge demand for products or services and inform sales forecasts.
+- Used to measure demand for products or services and inform sales forecasts.
 - Advantage: Provides direct access to customer insights and preferences.
 - Limitation: Risk of response biases or discrepancies between stated intentions and actual behavior.
 - Example: A car manufacturer conducting a survey to assess consumer preferences and intentions to purchase electric vehicles over the next year.
