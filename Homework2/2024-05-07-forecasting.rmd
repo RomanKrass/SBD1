@@ -1,7 +1,7 @@
 ---
 title: "Judgment-Based Forecasting"
 subtitle: "Exploring Judgemental Methods and Expert Opinions"
-author: "Erdan Beka, Cyril Scheuermann, Roman Krass, Keijo Nierula"
+author: "Erdan Beka, Roman Krass, Keijo Nierula"
 date: "07.05.2024"
 output:
   ioslides_presentation:
