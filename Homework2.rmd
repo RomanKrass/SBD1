@@ -1,0 +1,54 @@
+---
+title: "Homework1"
+author: "Erdan Beka, Cyril Scheuermann, Roman Krass, Keijo Nierula"
+date: "2024-05-21"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# scientific notation: off
+options(scipen = 999)
+```
+
+```{r, echo=FALSE, include=FALSE}
+library(tidyverse)
+library(forecast)
+```
+
+```{r importData, echo=FALSE, include=FALSE}
+# Import data
+data <- readRDS(".\\Homework2\\data.rds")
+
+# add absolute unemployment numbers
+data <- data |>
+    mutate(Unemployment_number = round(Unemployment * Population / 100))
+
+
+```
+
+```{r }
+
+# visualize the data for each canton
+data |>
+    ggplot(aes(x = Year, y = Unemployment, color = Kanton)) +
+    geom_line() +
+    theme_minimal() +
+    labs(title = "Unemployment rate in % by canton", color = "Canton")
+    
+
+# visualize the data summarized
+data |>
+    group_by(Year) |>
+    summarise(Unemployment = sum(Unemployment_number, na.rm = FALSE)) |>
+    ggplot(aes(x = Year, y = Unemployment)) +
+    geom_line() +
+    theme_minimal() +
+    labs(title = "Unemployment rate absolute")
+
+```
+
+```{r }
+
+# Define trend model for the Unemployment
