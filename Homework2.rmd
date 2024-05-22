@@ -1,5 +1,5 @@
 ---
-title: "Homework1"
+title: "Homework2"
 author: "Erdan Beka, Cyril Scheuermann, Roman Krass, Keijo Nierula"
 date: "2024-05-21"
 output: pdf_document
@@ -15,6 +15,10 @@ options(scipen = 999)
 ```{r, echo=FALSE, include=FALSE}
 library(tidyverse)
 library(forecast)
+# library(fpp3)
+library(fable)
+library(fabletools)
+library(stats)
 ```
 
 ```{r importData, echo=FALSE, include=FALSE}
@@ -25,18 +29,18 @@ data <- readRDS(".\\Homework2\\data.rds")
 data <- data |>
     mutate(Unemployment_number = round(Unemployment * Population / 100))
 
-
+# Convert data to time series
+data_ts <- ts(data, start = min(data$Year), end = max(data$Year), frequency = 1)
 ```
 
 ```{r }
-
 # visualize the data for each canton
 data |>
     ggplot(aes(x = Year, y = Unemployment, color = Kanton)) +
     geom_line() +
     theme_minimal() +
     labs(title = "Unemployment rate in % by canton", color = "Canton")
-    
+
 
 # visualize the data summarized
 data |>
@@ -46,9 +50,30 @@ data |>
     geom_line() +
     theme_minimal() +
     labs(title = "Unemployment rate absolute")
-
 ```
 
 ```{r }
-
 # Define trend model for the Unemployment
+
+fit <- tslm(Unemployment ~ trend, data = data_ts)
+
+#
+fit_fc <- fit |>
+    forecast(h = 5)
+
+autoplot(data, series = "Data") +
+    autolayer(fit_fc, series = "Forecast") +
+    xlab("Year") +
+    ylab("Unemployment") +
+    ggtitle("Unemployment forecast with trend model")
+
+fit_fc |>
+    filter(Kanton == "Bern") |>
+    autoplot(data)
+
+autoplot(data_ts, series = "Data") +
+    autolayer(fit_fc, series = "Forecast") +
+    xlab("Year") +
+    ylab("Unemployment") +
+    ggtitle("Unemployment forecast with trend model")
+```
