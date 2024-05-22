@@ -15,7 +15,7 @@ options(scipen = 999)
 ```{r, echo=FALSE, include=FALSE}
 library(tidyverse)
 library(forecast)
-# library(fpp3)
+library(fpp3)
 library(fable)
 library(fabletools)
 library(stats)
@@ -23,7 +23,7 @@ library(stats)
 
 ```{r importData, echo=FALSE, include=FALSE}
 # Import data
-data <- readRDS(".\\Homework2\\data.rds")
+data <- readRDS("./Homework2/data.rds")
 
 # add absolute unemployment numbers
 data <- data |>
@@ -31,6 +31,7 @@ data <- data |>
 
 # Convert data to time series
 data_ts <- ts(data, start = min(data$Year), end = max(data$Year), frequency = 1)
+data_tsibble <- data |> as_tsibble(index = Year)
 ```
 
 ```{r }
@@ -76,4 +77,162 @@ autoplot(data_ts, series = "Data") +
     xlab("Year") +
     ylab("Unemployment") +
     ggtitle("Unemployment forecast with trend model")
+```
+
+Next we try the mean method to get another forecast:
+```{r }
+# Split the data into training and test sets
+train_data <- data_tsibble |>
+  filter(Year <= 2018)
+
+test_data <- data_tsibble |>
+  filter(Year > 2018)
+
+
+# Mean Forecasting Method
+mean_model <- train_data |>
+  model(mean_fc = MEAN(Unemployment))
+
+mean_fc <- mean_model |>
+  forecast(new_data = test_data)
+
+# Plot the forecast
+autoplot(train_data, series = "Training Data") +
+  autolayer(test_data, series = "Test Data") +
+  autolayer(mean_fc, series = "Mean Forecast") +
+  xlab("Year") +
+  ylab("Unemployment") +
+  ggtitle("Unemployment Forecast with Mean Method")
+
+```
+
+Naive method:
+```{r }
+# Naïve Forecasting Method
+naive_model <- train_data |>
+  model(naive_fc = NAIVE(Unemployment))
+
+naive_fc <- naive_model |>
+  forecast(new_data = test_data)
+
+# Plot the forecast
+autoplot(train_data, series = "Training Data") +
+  autolayer(test_data, series = "Test Data") +
+  autolayer(naive_fc, series = "Naïve Forecast") +
+  xlab("Year") +
+  ylab("Unemployment") +
+  ggtitle("Unemployment Forecast with Naïve Method")
+
+```
+
+Drift Method:
+```{r }
+# Drift Forecasting Method
+drift_model <- train_data |>
+  model(drift_fc = RW(Unemployment ~ drift()))
+
+drift_fc <- drift_model |>
+  forecast(new_data = test_data)
+
+# Plot the forecast
+autoplot(train_data, series = "Training Data") +
+  autolayer(test_data, series = "Test Data") +
+  autolayer(drift_fc, series = "Drift Forecast") +
+  xlab("Year") +
+  ylab("Unemployment") +
+  ggtitle("Unemployment Forecast with Drift Method")
+
+
+```
+
+Just from looking at the plots, it is hard to tell which method is the best. We will now calculate the accuracy of the forecasts to get a better idea of which method is the best.
+```{r }
+# Calculate accuracy metrics
+mean_accuracy <- mean_fc |>
+  accuracy(test_data)
+
+naive_accuracy <- naive_fc |>
+  accuracy(test_data)
+
+drift_accuracy <- drift_fc |>
+  accuracy(test_data)
+
+mean_RMSE <- mean(mean_accuracy$RMSE)
+naive_RMSE <- mean(naive_accuracy$RMSE)
+drift_RMSE <- mean(drift_accuracy$RMSE)
+cat("Mean RMSE: ", mean_RMSE, "\n")
+cat("Naïve RMSE: ", naive_RMSE, "\n")
+cat("Drift RMSE: ", drift_RMSE, "\n")
+cat("We can see that the Naïve method has the lowest RMSE, which means it is the most accurate method. \n")
+
+mean(naive_accuracy$MAPE)
+```
+
+We can see that the Naïve method has the lowest RMSE, which means it is the most accurate method. It also has the lowest MAPE (20.45), which means it is the most accurate method so far.
+
+
+To get a better idea of the accuracy we visualize the performance of the models by combining the residuals:
+```{r }
+# Residuals for each model
+mean_resid <- augment(mean_model) |>
+  mutate(model = "Mean")
+
+naive_resid <- augment(naive_model) |>
+  mutate(model = "Naïve")
+
+drift_resid <- augment(drift_model) |>
+  mutate(model = "Drift")
+
+# Combine residuals
+residuals <- bind_rows(mean_resid, naive_resid, drift_resid)
+
+# Plot residuals
+residuals |>
+  ggplot(aes(x = Year, y = .resid, color = model)) +
+  geom_line() +
+  facet_wrap(~ model, scales = "free_y") +
+  theme_minimal() +
+  labs(title = "Residuals of Forecasting Models", y = "Residuals")
+
+# Boxplot of residuals
+residuals |>
+  ggplot(aes(x = model, y = .resid, fill = model)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(title = "Boxplot of Residuals for Forecasting Models", y = "Residuals")
+
+# Density plot of residuals
+residuals |>
+  ggplot(aes(x = .resid, fill = model, color = model)) +
+  geom_density(alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Density Plot of Residuals for Forecasting Models", x = "Residuals", y = "Density")
+
+
+```
+Especially the density plot shows that the residuals of the Naïve method are the closest to a normal distribution, which is a good sign for the accuracy of the model.
+
+
+# Actual Forecast with Naive Method
+```{r }
+# Extend the forecast horizon to December 2024
+last_year <- max(data$Year)
+forecast_horizon <- 2024 - last_year
+
+# Generate extended Naïve forecasts for each canton
+extended_naive_fc <- data |>
+  group_by(Kanton) |>
+  model(naive_fc = NAIVE(Unemployment)) |>
+  forecast(h = forecast_horizon)
+
+# Extract the forecasted values
+forecast_table <- extended_naive_fc |>
+  as_tibble() |>
+  select(Year, Kanton, .mean)
+
+forecast_table
+
+# TODO better display the values
+
+
 ```
