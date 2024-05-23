@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warnings = FALSE, message = FALSE)
 
 # scientific notation: off
 options(scipen = 999)
@@ -29,11 +29,18 @@ data <- readRDS("./Homework2/data.rds")
 data <- data |>
     mutate(Unemployment_number = round(Unemployment * Population / 100))
 
-# Convert data to time series
-data_ts <- ts(data, start = min(data$Year), end = max(data$Year), frequency = 1)
+# Convert data to time series and remove 2023 where the data is not yet available
+data_ts <- data |>
+    filter(Year != 2023) |>
+    ts(start = min(data$Year), end = max(data$Year), frequency = 1)
+
+# Convert data to tsibble
 data_tsibble <- data |> as_tsibble(index = Year)
 ```
 
+# Data exploration
+In this part we visualize the raw data to have an overview of the unemployment rate. 
+We will do this for each canton and then summarize the data to get an overview of the unemployment rate in Switzerland.
 ```{r }
 # visualize the data for each canton
 data |>
@@ -41,8 +48,10 @@ data |>
     geom_line() +
     theme_minimal() +
     labs(title = "Unemployment rate in % by canton", color = "Canton")
+```
+In this plot we can see the unemployment rate for each canton in % over the years. We can see that the percentage of unemployment is different for each canton but they all follow the same trend. This is for example visible in the year 2020 where the unemployment rate increased for all cantons.
 
-
+```{r }
 # visualize the data summarized
 data |>
     index_by(Year) |>
@@ -52,39 +61,36 @@ data |>
     theme_minimal() +
     labs(title = "Unemployment rate absolute")
 ```
+In this plot we can see the absolute number of unemployed people in Switzerland over the years. We can see that the number of unemployed people increased in 2020 and decreased a lot in 2022.
 
+# Forecasting
+
+## Liner Trend Model
 ```{r }
 # Define trend model for the Unemployment
-
 fit <- tslm(Unemployment ~ trend, data = data_ts)
 
-#
+# Forecast the unemployment rate for the next 5 years
 fit_fc <- fit |>
     forecast(h = 5)
 
-autoplot(data_tsibble, series = "Data") +
-    autolayer(fit_fc, series = "Forecast") +
-    xlab("Year") +
-    ylab("Unemployment") +
-    ggtitle("Unemployment forecast with trend model")
-
+# Plot the forecast
 fit_fc |>
     autoplot()
+```
+When we look at the linear trend model we can see that the unemployment rate is forecasted to decrease over the next 5 years. The range of the forecast is quite large. But this is also because of the big decrease in overall unemployment in 2021 and 2022.
 
+### visualize Results
+```{r }
+# Plot forecast for all cantons
 autoplot(data_tsibble) +
     autolayer(fit_fc, series = "Forecast") +
     xlab("Year") +
     ylab("Unemployment") +
     ggtitle("Unemployment forecast with trend model")
-
-data_tsibble |>
-    filter(Kanton == "Bern") |>
-    autoplot() +
-    autolayer(fit_fc, series = "Forecast") +
-    xlab("Year") +
-    ylab("Unemployment") +
-    ggtitle("Unemployment forecast with trend model")
 ```
+When we look at the forecast for all cantons we can see that the unemployment rate is forecasted to decrease. But because the forecast is combined for all cantons we can't see the differences between the cantons. Because the unemployment rate
+is combined from all cantons the range isn't suitable for all cantons. For example Appenzell Innerrhoden has a very low unemployment rate compared to other cantons. The forecast is why higher than the current unemployment rate. Which is not what the general forecast shows. 
 
 Next we try the mean method to get another forecast:
 ```{r }
