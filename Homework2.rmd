@@ -241,3 +241,15 @@ forecast_table
 
 # TODO better display the values
 ```
+
+# Display the accuracy metrics for each model
+accuracy_metrics <- tibble(
+  Model = c("Mean", "Naïve", "Drift"),
+  RMSE = c(mean_RMSE, naive_RMSE, drift_RMSE),
+  MAPE = c(mean(mean_accuracy$MAPE), mean(naive_accuracy$MAPE), mean(drift_accuracy$MAPE))
+)
+
+accuracy_metrics %>%
+  knitr::kable(caption = "Accuracy Metrics for Different Forecasting Models")
+
+#The table above shows the RMSE and MAPE values for the Mean, Naïve, and Drift forecasting models. The Naïve method has the lowest RMSE and MAPE, indicating it is the most accurate model among the three.
