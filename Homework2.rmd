@@ -19,6 +19,7 @@ library(fpp3)
 library(fable)
 library(fabletools)
 library(stats)
+library(knitr)
 ```
 
 ```{r importData, echo=FALSE, include=FALSE}
@@ -237,9 +238,8 @@ forecast_table <- extended_naive_fc |>
     as_tibble() |>
     select(Year, Kanton, .mean)
 
-forecast_table
-
-# TODO better display the values
+# Display the forecasted values
+kable(forecast_table)
 ```
 ```{r }
 # Display the accuracy metrics for each model
