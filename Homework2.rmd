@@ -66,17 +66,17 @@ In this plot we can see the absolute number of unemployed people in Switzerland 
 
 # Forecasting
 
-## Liner Trend Model
+## Linear Trend Model
 ```{r }
 # Define trend model for the Unemployment
-fit <- tslm(Unemployment ~ trend, data = data_ts)
+trend_model <- tslm(Unemployment ~ trend, data = data_ts)
 
 # Forecast the unemployment rate for the next 5 years
-fit_fc <- fit |>
+trend_fc <- fit |>
     forecast(h = 5)
 
 # Plot the forecast
-fit_fc |>
+trend_fc |>
     autoplot()
 ```
 When we look at the linear trend model we can see that the unemployment rate is forecasted to decrease over the next 5 years. The range of the forecast is quite large. But this is also because of the big decrease in overall unemployment in 2021 and 2022.
@@ -95,7 +95,8 @@ is combined from all cantons the range isn't suitable for all cantons. For examp
 
 Next we try the mean method to get another forecast:
 ```{r, fig.width=10, fig.height=7 }
-# Split the data into training and test sets
+# First we split the data into training and test sets
+# This is done so that we can evaluate the quality of the forecasts later
 train_data <- data_tsibble |>
     filter(Year <= 2018)
 
@@ -167,18 +168,25 @@ naive_accuracy <- naive_fc |>
 drift_accuracy <- drift_fc |>
     accuracy(test_data)
 
+# For the Linear Trend Model we calculate the accuracy without the test dataset because we were not able to split the time series object separately.
+trend_accuracy <- trend_fc |>
+  accuracy()
+
+
 mean_RMSE <- mean(mean_accuracy$RMSE)
 naive_RMSE <- mean(naive_accuracy$RMSE)
 drift_RMSE <- mean(drift_accuracy$RMSE)
+trend_RMSE <- mean(trend_accuracy[,"RMSE"])
 cat("Mean RMSE: ", mean_RMSE, "\n")
 cat("Naïve RMSE: ", naive_RMSE, "\n")
 cat("Drift RMSE: ", drift_RMSE, "\n")
+cat("Linear Trend RMSE: ", trend_RMSE, "\n")
 cat("We can see that the Naïve method has the lowest RMSE, which means it is the most accurate method. \n")
 
 mean(naive_accuracy$MAPE)
 ```
 
-We can see that the Naïve method has the lowest RMSE, which means it is the most accurate method. It also has the lowest MAPE (20.45), which means it is the most accurate method so far.
+We can see that the Naïve method has the lowest RMSE, which means it is the most accurate method. It also has the lowest MAPE (20.45), which means it is the most accurate method so far. The Mean method has the highest RMSE, which means it is the least accurate method.
 
 
 To get a better idea of the accuracy we visualize the performance of the models by combining the residuals:
@@ -218,7 +226,7 @@ residuals |>
     theme_minimal() +
     labs(title = "Density Plot of Residuals for Forecasting Models", x = "Residuals", y = "Density")
 ```
-Especially the density plot shows that the residuals of the Naïve method are the closest to a normal distribution, which is a good sign for the accuracy of the model.
+The density plot shows that the residuals of the Naïve method are the closest to a normal distribution, which is a good sign for the accuracy of the model. The boxplot shows that the Naïve method has the smallest range of residuals, which means it is the most consistent method. The residuals of the Mean method have the largest range, which means it is the least consistent method.
 
 
 # Actual Forecast with Naive Method
@@ -241,6 +249,9 @@ forecast_table <- extended_naive_fc |>
 # Display the forecasted values
 kable(forecast_table)
 ```
+
+TODO: maybe remove this? We already calculated accuracy above.
+
 ```{r }
 # Display the accuracy metrics for each model
 accuracy_metrics <- tibble(
@@ -252,5 +263,5 @@ accuracy_metrics <- tibble(
 accuracy_metrics %>%
     knitr::kable(caption = "Accuracy Metrics for Different Forecasting Models")
 ```
-The table above shows the RMSE and MAPE values for the Mean, Naïve, and Drift forecasting models. The Naïve method has the lowest RMSE and MAPE, indicating it is the most accurate model among the three.  
+The table above shows the RMSE and MAPE values for the Mean, Naïve, and Drift forecasting models. The Naïve method has the lowest RMSE and MAPE, indicating it is the most accurate model among the three.
 We decided not to make something with the seasonal model, because we only have yearly data and no monthly data.
