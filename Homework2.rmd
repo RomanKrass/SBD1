@@ -94,7 +94,7 @@ When we look at the forecast for all cantons we can see that the unemployment ra
 is combined from all cantons the range isn't suitable for all cantons. For example Appenzell Innerrhoden has a very low unemployment rate compared to other cantons. The forecast is why higher than the current unemployment rate. Which is not what the general forecast shows. 
 
 Next we try the mean method to get another forecast:
-```{r }
+```{r, fig.width=10, fig.height=7 }
 # Split the data into training and test sets
 train_data <- data_tsibble |>
     filter(Year <= 2018)
@@ -120,7 +120,7 @@ autoplot(train_data, series = "Training Data") +
 ```
 
 Naive method:
-```{r }
+```{r, fig.width=10, fig.height=7 }
 # Naïve Forecasting Method
 naive_model <- train_data |>
     model(naive_fc = NAIVE(Unemployment))
@@ -138,7 +138,7 @@ autoplot(train_data, series = "Training Data") +
 ```
 
 Drift Method:
-```{r }
+```{r, fig.width=10, fig.height=7 }
 # Drift Forecasting Method
 drift_model <- train_data |>
     model(drift_fc = RW(Unemployment ~ drift()))
