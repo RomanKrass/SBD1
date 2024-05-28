@@ -72,7 +72,7 @@ In this plot we can see the absolute number of unemployed people in Switzerland 
 trend_model <- tslm(Unemployment ~ trend, data = data_ts)
 
 # Forecast the unemployment rate for the next 5 years
-trend_fc <- fit |>
+trend_fc <- trend_model |>
     forecast(h = 5)
 
 # Plot the forecast
@@ -85,7 +85,7 @@ When we look at the linear trend model we can see that the unemployment rate is 
 ```{r }
 # Plot forecast for all cantons
 autoplot(data_tsibble) +
-    autolayer(fit_fc, series = "Forecast") +
+    autolayer(trend_fc, series = "Forecast") +
     xlab("Year") +
     ylab("Unemployment") +
     ggtitle("Unemployment forecast with trend model")
