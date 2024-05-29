@@ -1,7 +1,7 @@
 ---
 title: "Homework2"
 author: "Erdan Beka, Cyril Scheuermann, Roman Krass, Keijo Nierula"
-date: "2024-05-21"
+date: "2024-05-29"
 output: pdf_document
 ---
 
@@ -18,13 +18,12 @@ library(forecast)
 library(fpp3)
 library(fable)
 library(fabletools)
-library(stats)
 library(knitr)
 ```
 
 ```{r importData, echo=FALSE, include=FALSE}
 # Import data
-data <- readRDS("./Homework2/data.rds")
+data <- readRDS("./data.rds")
 
 # add absolute unemployment numbers
 data <- data |>
@@ -52,7 +51,7 @@ data |>
 ```
 In this plot we can see the unemployment rate for each canton in % over the years. We can see that the percentage of unemployment is different for each canton but they all follow the same trend. This is for example visible in the year 2020 where the unemployment rate increased for all cantons.
 
-```{r }
+```{r , warning=FALSE}
 # visualize the data summarized
 data |>
     index_by(Year) |>
@@ -81,7 +80,7 @@ trend_fc |>
 ```
 When we look at the linear trend model we can see that the unemployment rate is forecasted to decrease over the next 5 years. The range of the forecast is quite large. But this is also because of the big decrease in overall unemployment in 2021 and 2022.
 
-### visualize Results
+### Visualize Results
 ```{r }
 # Plot forecast for all cantons
 autoplot(data_tsibble) +
@@ -91,10 +90,11 @@ autoplot(data_tsibble) +
     ggtitle("Unemployment forecast with trend model")
 ```
 When we look at the forecast for all cantons we can see that the unemployment rate is forecasted to decrease. But because the forecast is combined for all cantons we can't see the differences between the cantons. Because the unemployment rate
-is combined from all cantons the range isn't suitable for all cantons. For example Appenzell Innerrhoden has a very low unemployment rate compared to other cantons. The forecast is why higher than the current unemployment rate. Which is not what the general forecast shows. 
-
+is combined from all cantons the range isn't suitable for all cantons. For example Appenzell Innerrhoden has a very low unemployment rate compared to other cantons. The forecast is way higher than the current unemployment rate. Which is not what the general forecast shows. 
 Next we try the mean method to get another forecast:
-```{r, fig.width=10, fig.height=7 }
+
+## Mean Model
+```{r, fig.width=10, fig.height=7 , warning=FALSE}
 # First we split the data into training and test sets
 # This is done so that we can evaluate the quality of the forecasts later
 train_data <- data_tsibble |>
@@ -120,16 +120,14 @@ autoplot(train_data, series = "Training Data") +
     ggtitle("Unemployment Forecast with Mean Method")
 ```
 
-Naive method:
-```{r, fig.width=10, fig.height=7 }
-# Naïve Forecasting Method
+## Naive method:
+```{r, fig.width=10, fig.height=7 , warning=FALSE}
 naive_model <- train_data |>
     model(naive_fc = NAIVE(Unemployment))
 
 naive_fc <- naive_model |>
     forecast(new_data = test_data)
 
-# Plot the forecast
 autoplot(train_data, series = "Training Data") +
     autolayer(test_data, series = "Test Data") +
     autolayer(naive_fc, series = "Naïve Forecast") +
@@ -138,8 +136,8 @@ autoplot(train_data, series = "Training Data") +
     ggtitle("Unemployment Forecast with Naïve Method")
 ```
 
-Drift Method:
-```{r, fig.width=10, fig.height=7 }
+## Drift Method:
+```{r, fig.width=10, fig.height=7 , warning=FALSE}
 # Drift Forecasting Method
 drift_model <- train_data |>
     model(drift_fc = RW(Unemployment ~ drift()))
@@ -157,6 +155,8 @@ autoplot(train_data, series = "Training Data") +
 ```
 
 Just from looking at the plots, it is hard to tell which method is the best. We will now calculate the accuracy of the forecasts to get a better idea of which method is the best.
+
+# Accuracy of the models
 ```{r }
 # Calculate accuracy metrics
 mean_accuracy <- mean_fc |>
@@ -172,7 +172,7 @@ drift_accuracy <- drift_fc |>
 trend_accuracy <- trend_fc |>
   accuracy()
 
-
+# Print the accuracy metrics
 mean_RMSE <- mean(mean_accuracy$RMSE)
 naive_RMSE <- mean(naive_accuracy$RMSE)
 drift_RMSE <- mean(drift_accuracy$RMSE)
@@ -181,16 +181,13 @@ cat("Mean RMSE: ", mean_RMSE, "\n")
 cat("Naïve RMSE: ", naive_RMSE, "\n")
 cat("Drift RMSE: ", drift_RMSE, "\n")
 cat("Linear Trend RMSE: ", trend_RMSE, "\n")
-cat("We can see that the Naïve method has the lowest RMSE, which means it is the most accurate method. \n")
-
-mean(naive_accuracy$MAPE)
 ```
 
 We can see that the Naïve method has the lowest RMSE, which means it is the most accurate method. It also has the lowest MAPE (20.45), which means it is the most accurate method so far. The Mean method has the highest RMSE, which means it is the least accurate method.
 
 
 To get a better idea of the accuracy we visualize the performance of the models by combining the residuals:
-```{r }
+```{r , warning=FALSE}
 # Residuals for each model
 mean_resid <- augment(mean_model) |>
     mutate(model = "Mean")
@@ -227,9 +224,11 @@ residuals |>
     labs(title = "Density Plot of Residuals for Forecasting Models", x = "Residuals", y = "Density")
 ```
 The density plot shows that the residuals of the Naïve method are the closest to a normal distribution, which is a good sign for the accuracy of the model. The boxplot shows that the Naïve method has the smallest range of residuals, which means it is the most consistent method. The residuals of the Mean method have the largest range, which means it is the least consistent method.
+Due to the Linear Trend model being based on a time series object, we were not able to plot the residuals for the Linear Trend model.
 
 
 # Actual Forecast with Naive Method
+Now that we decided which model is the best for our dataset we make a forecast for December 2024 using the Naïve model:
 ```{r }
 # Extend the forecast horizon to December 2024
 last_year <- max(data$Year)
@@ -250,18 +249,7 @@ forecast_table <- extended_naive_fc |>
 kable(forecast_table)
 ```
 
-TODO: maybe remove this? We already calculated accuracy above.
+The table above shows the forecasted unemployment rates for each canton in December 2024 using the Naïve method. In April 2024 the unemployment rate in the Canton of Bern was 1.7% and the forecasted unemployment rate for December 2024 is 1.4%. This means that the unemployment rate is expected to decrease in the remaining year according to our forecast.
+Another example would be the Canton of Zürich, where the unemployment rate was 2.1% in April 2024  and the forecasted unemployment rate for December 2024 is 1.7%. This means that the unemployment rate is expected to decrease as well in the remaining year 2024 according to our forecast. We are keen to see how accurate our forecast will have been in December 2024.
 
-```{r }
-# Display the accuracy metrics for each model
-accuracy_metrics <- tibble(
-    Model = c("Mean", "Naïve", "Drift"),
-    RMSE = c(mean_RMSE, naive_RMSE, drift_RMSE),
-    MAPE = c(mean(mean_accuracy$MAPE), mean(naive_accuracy$MAPE), mean(drift_accuracy$MAPE))
-)
-
-accuracy_metrics %>%
-    knitr::kable(caption = "Accuracy Metrics for Different Forecasting Models")
-```
-The table above shows the RMSE and MAPE values for the Mean, Naïve, and Drift forecasting models. The Naïve method has the lowest RMSE and MAPE, indicating it is the most accurate model among the three.
-We decided not to make something with the seasonal model, because we only have yearly data and no monthly data.
+Source for the Unemployment Rate of April 2024: [SECO](https://www.seco.admin.ch/dam/seco/de/dokumente/Publikationen_Dienstleistungen/Publikationen_Formulare/Arbeit/Arbeitslosenversicherung/Die%20Lage%20auf%20dem%20Arbeitsmarkt/arbeitsmarkt_2024/lage_arbeitsmarkt_april_2024.pdf.download.pdf/PRESSEDOK2404_D.pdf)
